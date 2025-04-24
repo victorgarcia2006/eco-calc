@@ -9,15 +9,71 @@ import {
   IconCheck,
   IconX,
 } from "@tabler/icons-react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 
 function HomePage() {
   const [result, setResult] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [converge, setConverge] = useState(false);
+  const [year, setYear] = useState(0);
+  const [A, setA] = useState(0);
+  const [b, setB] = useState(0);
+  const [p, setP] = useState(0);
+
+  const { control, handleSubmit } = useForm({
+    defaultValues: {
+      A: 0,
+      b: 0,
+      p: 0,
+      T0: 0,
+    },
+  });
 
   const randomResult = Math.random() * 100; // Simulación de un resultado aleatorio
 
-  const handleCalculate = () => {
+  const f = (t: number, A: number, b: number, p: number) => {
+    return A / Math.pow(t + b, p);
+  };
+
+  const calculatePIB = (A: number, b: number, p: number, t0: number) => {
+    const tMax = 100000; // Límite superior para aproximar infinito
+    let result = 0;
+
+    for (let t = t0; t < tMax; t += 0.01) {
+      result += f(t, A, b, p) * 0.01;
+    }
+
+    return result;
+  };
+
+  /*   const handleCalculate = () => {
     // Aquí iría la lógica para calcular el PIB
     setResult(randomResult);
+  }; */
+
+  const onSubmit: SubmitHandler<any> = (data) => {
+    console.log(data);
+    const { A, b, p, T0 } = data;
+    setLoading(true);
+    try {
+      const pib = calculatePIB(A, b, p, T0);
+      setResult(pib);
+      setYear(T0);
+      setA(A);
+      setB(b);
+      setP(p);
+      if(p <= 1 || result === Infinity) {
+        setConverge(false);
+      } else {
+        setConverge(true);
+      }
+      console.log(pib);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error al calcular el PIB:", error);
+      setResult(null);
+      setLoading(false);
+    }
   };
 
   return (
@@ -29,7 +85,7 @@ function HomePage() {
             <h1 className="text-teal-600 text-2xl font-semibold">
               Parámetros de la función
             </h1>
-            <p className="text-gray-700 mt-2">
+            <div className="text-gray-700 mt-2">
               La función está definida como: <br />
               <Latex>
                 {`$$
@@ -45,35 +101,66 @@ function HomePage() {
                 `}
               </Latex>
               Introduce los parámetros de la función:
-            </p>
+            </div>
           </Card.Section>
           <div className="py-4">
-            <form className="flex flex-col gap-4">
-              <NumberInput
-                label="Valor de A"
-                placeholder="A"
-                min={0}
-                step={0.1}
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={handleSubmit(onSubmit)}
+            >
+              <Controller
+                name="A"
+                control={control}
+                render={({ field }) => (
+                  <NumberInput
+                    label="A: PIB inicial (en millones de dólares)"
+                    placeholder="A"
+                    min={0}
+                    step={0.1}
+                    {...field}
+                  />
+                )}
               />
-              <NumberInput
-                label="Valor de b"
-                placeholder="b"
-                min={0}
-                step={0.1}
+              <Controller
+                name="b"
+                control={control}
+                render={({ field }) => (
+                  <NumberInput
+                    label="b: Desface temporal (en años)"
+                    placeholder="b"
+                    min={0}
+                    step={0.1}
+                    {...field}
+                  />
+                )}
               />
-              <NumberInput
-                label="Valor de p"
-                placeholder="p"
-                min={0}
-                step={0.1}
+              <Controller
+                name="p"
+                control={control}
+                render={({ field }) => (
+                  <NumberInput
+                    label="p: Desaceleración del PIB"
+                    placeholder="p"
+                    min={0}
+                    step={0.1}
+                    {...field}
+                  />
+                )}
               />
-              <NumberInput
-                label="Valor de T₀"
-                placeholder="T₀"
-                min={0}
-                step={0.1}
+              <Controller
+                name="T0"
+                control={control}
+                render={({ field }) => (
+                  <NumberInput
+                    label="T₀ = Año inicial (en años)"
+                    placeholder="T₀"
+                    min={0}
+                    step={0.1}
+                    {...field}
+                  />
+                )}
               />
-              <Button onClick={handleCalculate}>Calcular PIB</Button>
+              <Button type="submit" loading={loading}>Calcular PIB</Button>
             </form>
           </div>
         </Card>
@@ -122,13 +209,15 @@ function HomePage() {
                     <div className="flex items-center justify-between mt-2 bg-gray-50 rounded-md p-4">
                       <Latex>
                         {`$$
-                    PIB(t) = \\int_{T_0}^{\\infty} f(t) dt = ${result.toFixed(
-                      2
-                    )} 
+                    PIB(t) = \\int_{${year}}^{\\infty} \\frac{${A}}{(t + ${b})^{${p}}} = ${result == Infinity 
+                      ? (`\\infty`) 
+                      : converge 
+                      ? (result.toFixed(2))
+                      : (`\\infty`)} 
                   $$
                 `}
                       </Latex>
-                      {result > 50 ? (
+                      {converge ? (
                         <div className="flex flex-col items-center">
                           <div className="rounded-full p-3 bg-green-100">
                             <IconCheck className="h-6 w-6 text-green-600" />
@@ -149,14 +238,14 @@ function HomePage() {
                       )}
                     </div>
                   </p>
-                  <div className="p-4 bg-blue-50 rounded-lg">
+                  <div className="py-2 px-4 bg-blue-50 rounded-lg">
                     <h3 className="font-medium mb-2">
                       Interpretación económica:
                     </h3>
                     <p>
-                      {result > 50
-                        ? "La función converge, lo que indica un crecimiento económico sostenible a largo plazo con los parámetros dados."
-                        : "La función diverge, lo que sugiere un crecimiento económico no sostenible o inestable con los parámetros dados."}
+                      {converge
+                        ? `A partir del año ${year}, se estima que la contribución acumulada al PIB en el futuro será de aproximadamente ${result.toFixed(2)} billones de dólares.`
+                        : "Según los parámetros proporcionados, el crecimiento económico proyectado no tiene un límite acumulado, lo que sugiere un escenario de crecimiento indefinido."}
                     </p>
                   </div>
                 </div>
