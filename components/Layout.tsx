@@ -22,6 +22,7 @@ function Layout({ children, title }: LayoutProps) {
     <div className="bg-gradient-to-br from-teal-50 to-blue-50">
       <Head>
         <title>{title}</title>
+        <meta name="favicon" />
       </Head>
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center ">

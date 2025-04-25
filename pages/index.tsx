@@ -10,6 +10,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import Graph from "@/components/Graph";
 
 function HomePage() {
   const [result, setResult] = useState<number | null>(null);
@@ -28,8 +29,6 @@ function HomePage() {
       T0: 0,
     },
   });
-
-  const randomResult = Math.random() * 100; // Simulación de un resultado aleatorio
 
   const f = (t: number, A: number, b: number, p: number) => {
     return A / Math.pow(t + b, p);
@@ -62,7 +61,7 @@ function HomePage() {
       setA(A);
       setB(b);
       setP(p);
-      if(p <= 1 || result === Infinity) {
+      if (p <= 1 || result === Infinity || T0 === 0) {
         setConverge(false);
       } else {
         setConverge(true);
@@ -160,7 +159,9 @@ function HomePage() {
                   />
                 )}
               />
-              <Button type="submit" loading={loading}>Calcular PIB</Button>
+              <Button type="submit" loading={loading}>
+                Calcular PIB
+              </Button>
             </form>
           </div>
         </Card>
@@ -177,10 +178,22 @@ function HomePage() {
               </p>
             </Card.Section>
             <div className="bg-white border border-gray-200 rounded-md p-4 h-64 flex items-center justify-center">
-              <div className="text-center text-gray-500 flex flex-col items-center">
-                <IconChartLine className="h-12 w-12 mb-2 text-teal-300" />
-                <p>Aquí se mostrará la gráfica de la función</p>
-              </div>
+              {result === null ? (
+                <div className="text-center text-gray-500 flex flex-col items-center">
+                  <IconChartLine className="h-12 w-12 mb-2 text-teal-300" />
+                  <p>Aquí se mostrará la gráfica de la función</p>
+                </div>
+              ) : (
+                <div className="text-center text-gray-500 flex flex-col items-center justify-center mt-6">
+                  <Graph
+                    A={A}
+                    b={b}
+                    p={p}
+                    T0={year}
+                    Tmax={1000} // Límite superior para la gráfica
+                  />
+                </div>
+              )}
             </div>
           </Card>
           {/* Resultados */}
@@ -209,11 +222,13 @@ function HomePage() {
                     <div className="flex items-center justify-between mt-2 bg-gray-50 rounded-md p-4">
                       <Latex>
                         {`$$
-                    PIB(t) = \\int_{${year}}^{\\infty} \\frac{${A}}{(t + ${b})^{${p}}} = ${result == Infinity 
-                      ? (`\\infty`) 
-                      : converge 
-                      ? (result.toFixed(2))
-                      : (`\\infty`)} 
+                    PIB(t) = \\int_{${year}}^{\\infty} \\frac{${A}}{(t + ${b})^{${p}}} = ${
+                          result == Infinity
+                            ? `\\infty`
+                            : converge
+                            ? result.toFixed(2)
+                            : `\\infty`
+                        } 
                   $$
                 `}
                       </Latex>
@@ -244,7 +259,9 @@ function HomePage() {
                     </h3>
                     <p>
                       {converge
-                        ? `A partir del año ${year}, se estima que la contribución acumulada al PIB en el futuro será de aproximadamente ${result.toFixed(2)} billones de dólares.`
+                        ? `A partir del año ${year}, se estima que la contribución acumulada al PIB en el futuro será de aproximadamente ${result.toFixed(
+                            2
+                          )} billones de dólares.`
                         : "Según los parámetros proporcionados, el crecimiento económico proyectado no tiene un límite acumulado, lo que sugiere un escenario de crecimiento indefinido."}
                     </p>
                   </div>

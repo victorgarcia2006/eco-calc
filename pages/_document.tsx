@@ -6,6 +6,7 @@ export default function Document() {
     <Html lang="en" {...mantineHtmlProps}>
       <Head>
         <ColorSchemeScript defaultColorScheme="auto" />
+        <link rel="icon" href="/logoEC.png" />
       </Head>
       <body className="antialiased">
         <Main />
