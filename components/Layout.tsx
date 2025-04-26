@@ -11,13 +11,6 @@ interface LayoutProps {
 const inter = Inter({ subsets: ["latin"] });
 
 function Layout({ children, title }: LayoutProps) {
-  const navigationItems = [
-    { name: "Inicio", href: "#" },
-    { name: "Teoría", href: "#" },
-    { name: "Cómo funciona", href: "#" },
-    { name: "Créditos", href: "#" },
-  ];
-
   return (
     <div className="bg-gradient-to-br from-teal-50 to-blue-50">
       <Head>
@@ -38,20 +31,6 @@ function Layout({ children, title }: LayoutProps) {
               EcoCalc: Analiza el Futuro del PIB
             </h1>
           </div>
-          <nav>
-            <ul className="flex space-x-6">
-              {navigationItems.map((item, index) => (
-                <li key={index}>
-                  <a
-                    href="#"
-                    className="text-teal-600 hover:text-teal-500 font-medium"
-                  >
-                    {item.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
         </div>
       </header>
       <main

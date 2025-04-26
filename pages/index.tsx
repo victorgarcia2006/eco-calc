@@ -50,8 +50,12 @@ function HomePage() {
     setResult(randomResult);
   }; */
 
-  const onSubmit: SubmitHandler<any> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<{
+    A: number;
+    b: number;
+    p: number;
+    T0: number;
+  }> = (data) => {
     const { A, b, p, T0 } = data;
     setLoading(true);
     try {
@@ -66,7 +70,6 @@ function HomePage() {
       } else {
         setConverge(true);
       }
-      console.log(pib);
       setLoading(false);
     } catch (error) {
       console.error("Error al calcular el PIB:", error);
