@@ -24,7 +24,7 @@ export default function FunctionGraph({ A, b, p, T0, Tmax = 30 }: Props) {
 
     // Dominio del eje x (tiempo)
     const x = d3.scaleLinear()
-      .domain([T0, T0 + Tmax])
+      .domain([T0, T0 + 100])
       .range([margin.left, width - margin.right]);
 
     // Generar datos de la función

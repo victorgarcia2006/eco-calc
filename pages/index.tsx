@@ -143,7 +143,6 @@ function HomePage() {
                   <NumberInput
                     label="p: Desaceleración del PIB"
                     placeholder="p"
-                    min={0}
                     step={0.1}
                     {...field}
                   />
